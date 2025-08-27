@@ -1,0 +1,41 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  SKIP_DOCKER: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: newsletter
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --locked
+
+      - name: Run init_db.sh
+        run: ./scripts/init_db.sh
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Check sqlx queries
+        run: cargo sqlx prepare --workspace --check -- --all-targets
