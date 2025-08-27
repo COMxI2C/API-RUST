@@ -15,3 +15,6 @@ async fn main() -> std::io::Result<()> {
     run(listener)?.await
 }
 //comenario
+
+//funcion para llamar a un endpoint
+//esto es una prueba
