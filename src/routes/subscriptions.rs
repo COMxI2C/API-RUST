@@ -10,7 +10,7 @@ pub struct FormData {
 }
 
 //el "_" antes de la variable le dice al compilador, "tranquilo, se que no estoy usando la varibale, pero es intencional"
-pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
+pub async fn subscriptions(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
     match sqlx::query!(
         r#"
     INSERT INTO subscriptions (id, email, name, subscribed_at)
