@@ -39,6 +39,13 @@ async fn spawn_app() -> TestApp {
     }
 }
 
+pub async fn configure_database(config: &DatabaseSettings) -> PgPool{
+    //1 create the database
+    let mut conection = PgConnection::connect(&config.connection_string_without_db())
+    .await.expect("shit, failed to connect to postgres")
+    conection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str());
+    .await.expect("Oh no, failed to crate database nooooo");
+}
 #[tokio::test]
 async fn health_check_works() {
     let app_address = spawn_app().await;            
