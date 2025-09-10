@@ -20,10 +20,19 @@ DB_NAME="${POSTGRES_DB:=newsletter}"
 DB_PORT="${POSTGRES_PORT:=5432}"
 
 # Verifica si ya existe un contenedor con el mismo nombre
-if [ "$(docker ps -aq -f name=newsletter-db)" ]; then
-  echo "Ya existe un contenedor llamado newsletter-db. Detenlo antes de ejecutar este script."
-  exit 1
+CONTAINER_ID=$(docker ps -aq -f name=newsletter-db)
+
+if [ "$CONTAINER_ID" ]; then
+  STATUS=$(docker inspect -f '{{.State.Status}}' "$CONTAINER_ID")
+  if [ "$STATUS" = "exited" ]; then
+    echo "Contenedor detenido. Reiniciando..."
+    docker start "$CONTAINER_ID"
+  else
+    echo "Ya existe un contenedor llamado newsletter-db en estado '$STATUS'. Detenlo antes de ejecutar este script."
+    exit 1
+  fi
 fi
+
 
 #verifica si las herramientas necesarias están instaladas
 if ! [ -x "$(command -v psql)" ]; then
