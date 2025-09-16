@@ -45,7 +45,17 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool{
     .await.expect("shit, failed to connect to postgres")
     conection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str());
     .await.expect("Oh no, failed to crate database nooooo");
+
+    //migrate database
+    let connection_pool = PgPool::connect(&config.connection_string_without_db())
+    .await.expect("Failed to connect database postgres");
+
+    sqlx::migrate!("./migrations")
+    .await.expect("Failes to migrate database----->");
+
+    conection_pool
 }
+
 #[tokio::test]
 async fn health_check_works() {
     let app_address = spawn_app().await;            
