@@ -18,16 +18,17 @@ async fn spawn_app() -> TestApp {
     let address = format!("http://127.0.0.1:{}", port);
 
     let mut configuration = get_configuration().expect("Failet to read configuration");
+
+
     // the objetive of the following line its asigna a random name to the new
     // database, then i enter to file configuration, after to the item d
     //database and the item "database_name" and i assign the name given by Uuid.new_v4, which it is similar to 
     //"a3f2c1d2-8b9e-4f1a-9c3e-2a1d5f6e7b8c. This proccess it due every test use the same db, this is a problem, 
     //then every test create its own db. at the end it can be delete
-
     configuration.database.database_name = Uuid::new_v4().to_string();
-    let conection_pool = PgPool::connect(&configuration.database.connection_string())
-    .await
-    .expect("Failed to connect to postgres");
+
+    let conection_pool = configure_database(&configuration.database).await;
+    .await.expect("Failed to connect to postgres");
 
     let server = run(listener, conection_pool.clone())
     .expect("Failed to start server");
